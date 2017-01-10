@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 class CUDAOffloader{
 
@@ -10,7 +11,7 @@ class CUDAOffloader{
 
     private:
 
-        //cudaDeviceProp prop;
+       //cudaDeviceProp prop;
        //void addCUDA( int *a, int *b, int *c );
 
 };

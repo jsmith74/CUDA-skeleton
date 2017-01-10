@@ -9,7 +9,17 @@ __global__ void addCUDA( int *a, int *b, int *c ){
 
 void CUDAOffloader::getDeviceProperties(){
 
+    int count;
+    cudaGetDeviceCount(&count);
+    std::cout << "Number of Devices: " << count << std::endl << std::endl;
 
+    cudaDeviceProp Prop;
+    cudaGetDeviceProperties(&Prop,0);
+    std::cout << Prop.name << std::endl;
+    std::cout << "Amount of memory on device in bytes: " << Prop.totalGlobalMem << std::endl;
+    std::cout << "The Maximum amount of shared memory a single block may use in bytes: " << Prop.sharedMemPerBlock << std::endl;
+    std::cout << "Max threads per block: " << Prop.maxThreadsPerBlock << std::endl;
+     //more stats you don't understand yet
 
     return;
 
