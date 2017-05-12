@@ -1,11 +1,13 @@
-CUDAExe: CUDAfunc.o main.o
-	nvcc CUDAfunc.o main.o -o CUDAExe
+CC = g++
+CFLAGS = -O3
+LFLAGS = -O3
+OBS = main.o
+
+CUDAPractice: $(OBS)
+	$(CC) $(LFLAGS) $(OBS) -o CUDAPractice
 
 main.o: main.cpp
-	g++ -c main.cpp
-
-CUDAfunc.o: CUDAfunc.cu
-	nvcc -c CUDAfunc.cu
+	$(CC) $(CFLAGS) -c main.cpp
 
 clean:
-	rm CUDAExe *.o
+	rm *.o CUDAPractice

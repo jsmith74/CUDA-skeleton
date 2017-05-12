@@ -1,81 +1,79 @@
 #include <iostream>
-#include <ctime>
-#include <complex>
-#include <iomanip>
+#include <assert.h>
 
-#include "CUDAfunc.h"
+inline void iter_swap(int* __a, int* __b) {
+  int __tmp = *__a;
+  *__a = *__b;
+  *__b = __tmp;
+}
 
+void reverse(int* __first, int* __last) {
+
+  while (true)
+    if (__first == __last || __first == --__last)
+      return;
+    else{
+      iter_swap(__first++, __last);
+    }
+}
+
+bool next_permutation(int* __first, int* __last) {
+
+  if (__first == __last)
+    return false;
+  int* __i = __first;
+  ++__i;
+  if (__i == __last)
+    return false;
+  __i = __last;
+  --__i;
+
+  for(;;) {
+    int* __ii = __i;
+    --__i;
+    if (*__i < *__ii) {
+      int* __j = __last;
+      while (!(*__i < *--__j))
+        {}
+    iter_swap(__i, __j);
+      reverse(__ii, __last);
+      return true;
+    }
+    if (__i == __first) {
+      reverse(__first, __last);
+      return false;
+    }
+  }
+
+}
+
+void printArr(int i[]){
+
+    for(int j=0;j<10;j++) std::cout << i[j] << " ";
+    std::cout << std::endl;
+
+}
 
 int main(){
 
-	int test;
+    int i[10];
 
-	clock_t t1,t2;
+    for(int j=0;j<10;j++) i[j] = j;
 
-	t1 = clock();
+    int k=0;
 
-    thrust::complex<double> compTestArr[10];
+    do{
 
-    thrust::complex<double> I(0.0,1.0);
+        printArr(i);
 
-    for(int i=0;i<10;i++) compTestArr[i] = 1.0 * i + ( i + 0.5 ) * I;
+        k++;
 
-    for(int i=0;i<10;i++) std::cout << normC(compTestArr[i]) << std::endl;
+    } while(next_permutation( i,i+10) );
 
-    double output = 0.0;
+    std::cout << "Num Permutations: " << k << std::endl;
 
-    for(int i=0;i<358400;i++){
+    printArr(i);
 
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output -= normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output -= normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output -= normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output -= normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output -= normC(compTestArr[j]);
-
-        for(int k=0;k<100;k++) for(int j=0;j<10;j++) output += normC(compTestArr[j]);
-
-    }
-
-	t2 = clock();
-
-	float diff = (float)t2 - (float)t1;
-
-	std::cout << "Result: " << std::setprecision(16)  << output << std::endl;
-
-	std::cout << "Time to Execute: " << diff/CLOCKS_PER_SEC << std::endl;
-
-	output = 0.0;
-
-	CUDAOffloader OffloadtoGPU;
-
-	OffloadtoGPU.getDeviceProperties();
-
-	t1 = clock();
-
-	output = OffloadtoGPU.sendDataToDeviceAndCompute();
-
-	t2 = clock();
-
-	diff = (float)t2 - (float)t1;
-
-    std::cout << "Result: " << std::setprecision(16)  << output << std::endl;
-
-	std::cout << "Time to Execute: " << diff/CLOCKS_PER_SEC << std::endl;
-
-	return 0;
+    return 0;
 
 }
