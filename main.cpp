@@ -1,79 +1,85 @@
 #include <iostream>
-#include <assert.h>
+#include <ctime>
+#include <iomanip>
 
-inline void iter_swap(int* __a, int* __b) {
-  int __tmp = *__a;
-  *__a = *__b;
-  *__b = __tmp;
-}
+#include "CUDAfunc.h"
+#include "BootLegPermutation.h"
 
-void reverse(int* __first, int* __last) {
-
-  while (true)
-    if (__first == __last || __first == --__last)
-      return;
-    else{
-      iter_swap(__first++, __last);
-    }
-}
-
-bool next_permutation(int* __first, int* __last) {
-
-  if (__first == __last)
-    return false;
-  int* __i = __first;
-  ++__i;
-  if (__i == __last)
-    return false;
-  __i = __last;
-  --__i;
-
-  for(;;) {
-    int* __ii = __i;
-    --__i;
-    if (*__i < *__ii) {
-      int* __j = __last;
-      while (!(*__i < *--__j))
-        {}
-    iter_swap(__i, __j);
-      reverse(__ii, __last);
-      return true;
-    }
-    if (__i == __first) {
-      reverse(__first, __last);
-      return false;
-    }
-  }
-
-}
-
-void printArr(int i[]){
+template <class cc>
+void printArr(cc i[]){
 
     for(int j=0;j<10;j++) std::cout << i[j] << " ";
     std::cout << std::endl;
 
 }
 
+inline double cNormTest(thrust::complex<double>& c){
+
+    return c.real() * c.real() + c.imag() * c.imag();
+
+}
+
 int main(){
 
+    clock_t t1,t2;
+
+    t1 = clock();
+
+    CUDAOffloader OffloadToGPU;
+
+    thrust::complex<double> U[10];
+
+    thrust::complex<double> I(0.0,1.0);
+
+    for(int i=0;i<10;i++) U[i] = 0.1*i + 0.15*i*I;
+
+    double output = OffloadToGPU.sendDataandCompute(U);
+
+    t2 = clock();
+
+    float diff = (float)t2 - (float)t1;
+
+    std::cout << "Result: " << output << std::endl;
+    std::cout << "Time Elapsed: " << diff / CLOCKS_PER_SEC << std::endl;
+
     int i[10];
+
+    t1 = clock();
+
+    BootLegPermutation CPU_Alg;
 
     for(int j=0;j<10;j++) i[j] = j;
 
     int k=0;
 
-    do{
+    output = 0.0;
 
-        printArr(i);
+    for(int j=0;j<350*1024;j++){
 
-        k++;
+        k = 0;
 
-    } while(next_permutation( i,i+10) );
+        do{
+
+            output += cNormTest(U[ k % 10 ]);
+            output -= cNormTest(U[ k % 10 ]);
+            k++;
+
+        } while(CPU_Alg.next_permutation( i,i+10) );
+
+        //printArr(i);
+
+    }
+
+    t2 = clock();
 
     std::cout << "Num Permutations: " << k << std::endl;
 
-    printArr(i);
+    diff = (float)t2 - (float)t1;
+
+    std::cout << "Result: " << output << std::endl;
+    std::cout << "Time Elapsed: " << diff / CLOCKS_PER_SEC << std::endl;
 
     return 0;
 
 }
+

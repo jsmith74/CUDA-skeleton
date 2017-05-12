@@ -1,13 +1,23 @@
 CC = g++
-CFLAGS = -O3
-LFLAGS = -O3
-OBS = main.o
+CUCC = nvcc
+CFLAGS = -c -O3 -funroll-loops
+CUFLAGS = -c
+LFLAGS = 
+OBS = main.o CUDAFunc.o BootLegPermutation.o
 
-CUDAPractice: $(OBS)
-	$(CC) $(LFLAGS) $(OBS) -o CUDAPractice
+all: CUDAEXE
+
+CUDAEXE: $(OBS)
+	$(CUCC) $(LFLAGS) $(OBS) -o CUDAEXE
+
+CUDAFunc.o: CUDAFunc.cu
+	$(CUCC) $(CUFLAGS) CUDAFunc.cu
+
+BootLegPermutation.o: BootLegPermutation.cpp
+	$(CC) $(CFLAGS) BootLegPermutation.cpp
 
 main.o: main.cpp
-	$(CC) $(CFLAGS) -c main.cpp
+	$(CC) $(CFLAGS)  main.cpp
 
 clean:
-	rm *.o CUDAPractice
+	rm *.o CUDAEXE
